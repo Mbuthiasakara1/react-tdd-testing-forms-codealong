@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 import App from "../App";
 
@@ -36,10 +36,73 @@ test("checkbox appears as unchecked when user clicks a second time", () => {
   expect(addPepperoni).not.toBeChecked();
 });
 
-// Size select element
+test("size select element initially displays 'Small'", () => {
+  render(<App />);
 
-// "Your Selection" text
+  const selectSize = screen.getByLabelText(/select size/i);
 
-// "Contact Info" text box
+  expect(selectSize).toHaveDisplayValue("Small");
+});
 
-// Submit Order button
+test("select Size dropdown displays the users selected value", () => {
+  render(<App />);
+  const selectSize = screen.getByLabelText(/select size/i);
+
+  userEvent.selectOptions(selectSize, "medium");
+
+  expect(selectSize).toHaveDisplayValue("Medium");
+
+  userEvent.selectOptions(selectSize, "large");
+
+  expect(selectSize).toHaveDisplayValue("Large");
+});
+
+test("'Your Selection' message initially displays 'small cheese'", () => {
+  render(<App />);
+
+  expect(screen.getByText(/small cheese/i)).toBeInTheDocument();
+});
+
+test("selecting options updates the 'Your selection' message", () => {
+  render(<App />);
+
+  const addPepperoni = screen.getByRole("checkbox", { name: /add pepperoni/i });
+  const selectSize = screen.getByLabelText(/select size/i);
+
+  userEvent.click(addPepperoni);
+
+  expect(screen.getByText(/small pepperoni/i)).toBeInTheDocument();
+
+  userEvent.selectOptions(selectSize, "large");
+
+  expect(screen.getByText(/large pepperoni/i)).toBeInTheDocument();
+});
+
+test("'Contact info' text box initially displays a placeholder value of 'email address'", () => {
+  render(<App />);
+  expect(screen.getAllByPlaceholderText(/email address/i));
+});
+
+test("the page shows information the user types into the contact form field", () => {
+  render(<App />);
+  const contact = screen.getByLabelText(/enter your email address/i);
+  userEvent.type(contact, "pizzafan@gmail.com");
+  expect(contact).toHaveValue("pizzafan@gmail.com");
+});
+
+
+test("form contains a 'Submit Order' button", () => {
+  render(<App />);
+
+  expect(
+    screen.getByRole("button", { name: /submit order/i })
+  ).toBeInTheDocument();
+});
+
+test("clicking the Place Order button displays a thank you message", () => {
+  render(<App />);
+
+  userEvent.click(screen.getByRole("button", { name: /submit order/i }));
+
+  expect(screen.getByText(/thanks for your order!/i)).toBeInTheDocument();
+});
